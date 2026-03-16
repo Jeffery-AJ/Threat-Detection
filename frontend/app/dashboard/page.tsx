@@ -9,6 +9,7 @@ import { ActivityCharts } from '@/components/dashboard/activity-charts';
 import { AlertPanel } from '@/components/dashboard/alert-panel';
 import { LogViewer } from '@/components/dashboard/log-viewer';
 import { ResponseControls } from '@/components/dashboard/response-controls';
+import { BlockedUsers } from '@/components/dashboard/blocked-users';
 
 export default function DashboardPage() {
   const { user } = useAuth();
@@ -57,6 +58,9 @@ export default function DashboardPage() {
 
       {/* Activity Charts */}
       <ActivityCharts />
+
+      {/* Blocked Users */}
+      <BlockedUsers />
 
       {/* Alert Panel */}
       <AlertPanel />

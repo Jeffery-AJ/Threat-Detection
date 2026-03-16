@@ -132,8 +132,8 @@ export function ActivityCharts() {
         </div>
       </motion.div>
 
-      {/* Threat Frequency Bar Chart */}
-      <motion.div
+      {/* Threat Frequency Bar Chart - REMOVED */}
+      {/* <motion.div
         variants={itemVariants}
         whileHover={{ y: -8, transition: { duration: 0.2 } }}
         className="lg:col-span-3 group relative"
@@ -163,7 +163,7 @@ export function ActivityCharts() {
             </BarChart>
           </ResponsiveContainer>
         </div>
-      </motion.div>
+      </motion.div> */}
     </motion.div>
   );
 }
