@@ -1,0 +1,5 @@
+{
+    "python.analysis.extraPaths": [
+        "cyber_threat_platform"
+    ]
+}
