@@ -25,41 +25,53 @@ export function TrafficSimulation() {
   });
 
   const runTrafficSimulation = async () => {
-    setIsRunning(true);
-    setBlockedIPs([]);
-    setStats({ totalTraffic: 0, attacksDetected: 0, benignTraffic: 0 });
+    if (isRunning) {
+      // Stop capture
+      try {
+        const response = await fetch('/api/stop-capture/');
+        const data = await response.json();
+        setIsRunning(false);
+        console.log('Network capture stopped');
+      } catch (error) {
+        console.error('Failed to stop capture:', error);
+      }
+    } else {
+      // Start capture
+      setIsRunning(true);
+      setBlockedIPs([]);
+      setStats({ totalTraffic: 0, attacksDetected: 0, benignTraffic: 0 });
 
-    try {
-      // For demonstration, simulate the traffic generation
-      // In production, this would call the backend API
-      console.log('Starting traffic simulation...');
+      try {
+        const response = await fetch('/api/simulate/');
+        const data = await response.json();
+        console.log('Network capture started');
 
-      // Simulate some processing time
-      await new Promise(resolve => setTimeout(resolve, 2000));
-
-      // Mock results - in real implementation, this would come from backend
-      const mockStats = {
-        totalTraffic: 200,
-        attacksDetected: 45,
-        benignTraffic: 155,
-      };
-
-      const mockBlockedIPs: BlockedIP[] = [
-        { ip: '192.168.1.100', timestamp: new Date().toISOString(), attack_type: 'DDoS', destination: '10.0.0.1' },
-        { ip: '10.0.0.50', timestamp: new Date().toISOString(), attack_type: 'Port_Scan', destination: '192.168.1.1' },
-        { ip: '172.16.0.25', timestamp: new Date().toISOString(), attack_type: 'Brute_Force', destination: '10.0.0.5' },
-        { ip: '203.0.113.45', timestamp: new Date().toISOString(), attack_type: 'DDoS', destination: '192.168.1.10' },
-        { ip: '198.51.100.78', timestamp: new Date().toISOString(), attack_type: 'Port_Scan', destination: '172.16.0.1' },
-      ];
-
-      setStats(mockStats);
-      setBlockedIPs(mockBlockedIPs);
-
-      console.log('Traffic simulation completed');
-    } catch (error) {
-      console.error('Simulation failed:', error);
-    } finally {
-      setIsRunning(false);
+        // Start polling for stats
+        const pollStats = async () => {
+          if (!isRunning) return;
+          try {
+            const statsResponse = await fetch('/api/capture-stats/');
+            const statsData = await statsResponse.json();
+            setStats({
+              totalTraffic: statsData.total_traffic,
+              attacksDetected: statsData.attacks_detected,
+              benignTraffic: statsData.benign_traffic,
+            });
+            setBlockedIPs(statsData.blocked_ips.map((ip: any) => ({
+              ip: ip.ip,
+              timestamp: new Date(ip.timestamp * 1000).toISOString(),
+              attack_type: ip.attack_type,
+            })));
+          } catch (error) {
+            console.error('Failed to fetch stats:', error);
+          }
+          setTimeout(pollStats, 2000); // Poll every 2 seconds
+        };
+        pollStats();
+      } catch (error) {
+        console.error('Failed to start capture:', error);
+        setIsRunning(false);
+      }
     }
   };
 
@@ -75,42 +87,37 @@ export function TrafficSimulation() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-white">
             <Play className="w-5 h-5 text-blue-400" />
-            Traffic Simulation
+            Network Capture
           </CardTitle>
           <CardDescription className="text-gray-400">
-            Generate synthetic network traffic and detect cyber threats in real-time
+            Capture and analyze real-time network traffic for cyber threats
           </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="flex items-center justify-between">
             <div className="space-y-1">
               <p className="text-sm text-gray-400">
-                Simulate network traffic with various attack types including DDoS, Port Scanning, and Brute Force attacks.
+                Monitor live network traffic, detect malicious activities using ML, and automatically block threats.
               </p>
               <div className="flex gap-4 text-xs text-gray-500">
-                <span>• Real-time threat detection</span>
+                <span>• Real-time packet capture</span>
+                <span>• ML-based threat detection</span>
                 <span>• Automatic IP blocking</span>
-                <span>• Detailed logging</span>
               </div>
             </div>
             <Button
               onClick={runTrafficSimulation}
-              disabled={isRunning}
-              className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white"
+              className={`text-white ${isRunning ? 'bg-red-500 hover:bg-red-600' : 'bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700'}`}
             >
               {isRunning ? (
                 <>
-                  <motion.div
-                    animate={{ rotate: 360 }}
-                    transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
-                    className="w-4 h-4 border-2 border-white border-t-transparent rounded-full mr-2"
-                  />
-                  Running Simulation...
+                  <Square className="w-4 h-4 mr-2" />
+                  Stop Capture
                 </>
               ) : (
                 <>
                   <Play className="w-4 h-4 mr-2" />
-                  Start Traffic Simulation
+                  Start Network Capture
                 </>
               )}
             </Button>

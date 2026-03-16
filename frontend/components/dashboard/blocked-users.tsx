@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Shield, AlertTriangle, Clock, MapPin, User } from 'lucide-react';
+import { Shield, AlertTriangle, Clock, MapPin, User, Unlock } from 'lucide-react';
 import { blockedIPs } from '@/lib/mock-data';
 
 interface BlockedIP {
@@ -23,6 +23,12 @@ interface BlockedIP {
 
 export function BlockedUsers() {
   const [selectedIP, setSelectedIP] = useState<BlockedIP | null>(null);
+  const [blockedIPsState, setBlockedIPsState] = useState(blockedIPs);
+
+  const unblockIP = (id: string) => {
+    setBlockedIPsState(prev => prev.filter(ip => ip.id !== id));
+    setSelectedIP(null); // Close the dialog
+  };
 
   const getSeverityColor = (severity: string) => {
     switch (severity) {
@@ -86,12 +92,12 @@ export function BlockedUsers() {
               </p>
             </div>
             <Badge variant="outline" className="bg-red-500/10 text-red-400 border-red-500/50">
-              {blockedIPs.length} Blocked
+              {blockedIPsState.length} Blocked
             </Badge>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {blockedIPs.map((blockedIP) => (
+            {blockedIPsState.map((blockedIP) => (
               <motion.div
                 key={blockedIP.id}
                 whileHover={{ scale: 1.02 }}
@@ -198,6 +204,17 @@ export function BlockedUsers() {
                           <label className="text-sm font-medium text-gray-300">User Agent</label>
                           <p className="font-mono text-sm text-gray-300 truncate">{blockedIP.userAgent}</p>
                         </div>
+                      </div>
+
+                      <div className="flex gap-2 pt-4">
+                        <Button
+                          variant="outline"
+                          className="bg-red-500/10 border-red-500/50 text-red-400 hover:bg-red-500/20"
+                          onClick={() => unblockIP(blockedIP.id)}
+                        >
+                          <Unlock className="w-4 h-4 mr-2" />
+                          Unblock IP
+                        </Button>
                       </div>
                     </div>
                   </DialogContent>

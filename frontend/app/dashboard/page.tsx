@@ -10,6 +10,7 @@ import { AlertPanel } from '@/components/dashboard/alert-panel';
 import { LogViewer } from '@/components/dashboard/log-viewer';
 import { ResponseControls } from '@/components/dashboard/response-controls';
 import { BlockedUsers } from '@/components/dashboard/blocked-users';
+import { CaptureHistory } from '@/components/dashboard/capture-history';
 
 export default function DashboardPage() {
   const { user } = useAuth();
@@ -55,6 +56,9 @@ export default function DashboardPage() {
 
       {/* Traffic Simulation */}
       <TrafficSimulation />
+
+      {/* Capture History */}
+      <CaptureHistory />
 
       {/* Activity Charts */}
       <ActivityCharts />
